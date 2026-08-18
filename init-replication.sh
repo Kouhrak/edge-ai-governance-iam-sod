@@ -1,0 +1,101 @@
+#!/bin/bash
+set -euo pipefail
+
+# init-replication.sh — bootstrap PostgreSQL streaming replication
+#
+# Modes:
+#   --primary   : Create replication user + slot on an already-running primary
+#   --replica   : pg_basebackup from primary and start as hot standby
+#
+# Called by docker-compose exec:
+#   docker compose exec db_primary bash /init/init-replication.sh --primary
+#   db_replica command: ["bash", "/init/init-replication.sh", "--replica"]
+
+REPLICATION_USER="${REPLICATION_USER:-repl}"
+REPLICATION_PASSWORD="${REPLICATION_PASSWORD:?REPLICATION_PASSWORD is required}"
+REPLICATION_SLOT="replica_slot"
+PGDATA="/var/lib/postgresql/data"
+PRIMARY_HOST="db_primary"
+PRIMARY_PORT="5432"
+
+setup_primary() {
+    echo "[primary] Creating replication user and slot..."
+
+    # Wait for postgres to be accepting connections
+    until pg_isready -U "${POSTGRES_USER:-postgres}" -q; do
+        sleep 2
+    done
+
+    # Create replication user (idempotent)
+    psql -U "${POSTGRES_USER:-postgres}" -d "${POSTGRES_DB:-edge_iam}" -c \
+        "DO \$\$
+         BEGIN
+           IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '${REPLICATION_USER}') THEN
+             CREATE ROLE ${REPLICATION_USER} WITH REPLICATION LOGIN PASSWORD '${REPLICATION_PASSWORD}';
+           END IF;
+         END
+         \$\$;"
+
+    # Create replication slot (idempotent)
+    psql -U "${POSTGRES_USER:-postgres}" -d "${POSTGRES_DB:-edge_iam}" -c \
+        "SELECT pg_create_physical_replication_slot('${REPLICATION_SLOT}');"
+
+    # Allow replication connections in pg_hba.conf
+    PG_HBA="$PGDATA/pg_hba.conf"
+    if ! grep -q "replication" "$PG_HBA" 2>/dev/null; then
+        echo "host replication ${REPLICATION_USER} 0.0.0.0/0 md5" >> "$PG_HBA"
+        echo "host replication ${REPLICATION_USER} ::/0 md5" >> "$PG_HBA"
+        echo "[primary] Added replication entries to pg_hba.conf"
+    fi
+
+    echo "[primary] Replication user and slot ready."
+}
+
+setup_replica() {
+    echo "[replica] Waiting for primary to be ready..."
+    until pg_isready -h "$PRIMARY_HOST" -p "$PRIMARY_PORT" -U "$REPLICATION_USER" -q; do
+        sleep 2
+    done
+    echo "[replica] Primary is ready. Running pg_basebackup..."
+
+    # Remove existing data if present (fresh replica)
+    rm -rf "$PGDATA"/*
+
+    PGPASSWORD="$REPLICATION_PASSWORD" pg_basebackup \
+        -h "$PRIMARY_HOST" \
+        -p "$PRIMARY_PORT" \
+        -U "$REPLICATION_USER" \
+        -D "$PGDATA" \
+        -Fp \
+        -Xs \
+        -P \
+        -R
+
+    # Ensure correct ownership and permissions
+    chown -R postgres:postgres "$PGDATA"
+    chmod 700 "$PGDATA"
+
+    # -R flag creates standby.signal and sets primary_conninfo in postgresql.auto.conf
+
+    # Enable hot standby and set slot name
+    cat >> "$PGDATA/postgresql.conf" <<EOF
+hot_standby = on
+primary_slot_name = '${REPLICATION_SLOT}'
+EOF
+
+    echo "[replica] Base backup complete. Starting as standby..."
+    exec su-exec postgres postgres
+}
+
+case "${1:-}" in
+    --primary)
+        setup_primary
+        ;;
+    --replica)
+        setup_replica
+        ;;
+    *)
+        echo "Usage: $0 --primary | --replica"
+        exit 1
+        ;;
+esac

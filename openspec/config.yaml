@@ -1,0 +1,76 @@
+# openspec/config.yaml
+# SDD project configuration — edge-ai-governance-iam-sod
+# Bootstrap by sdd-init on 2026-08-17 (artifact_store.mode=openspec)
+
+schema: spec-driven
+project: edge-ai-governance-iam-sod
+strict_tdd: false
+
+context: |
+  Tech stack: Flutter (Dart) multi-platform frontend (Android, Windows Desktop) — Clean Architecture, BLoC state management, Atomic Design, Design Tokens.
+  Backend: containerized microservices on Docker — Node.js (Express) or Python (FastAPI); PostgreSQL 16 primary (cloud) + edge replica (streaming replication).
+  Edge AI: Ollama local SLM (Gemma 3 2B Q4_K_M / Phi-3-mini), MCP server (FastMCP), trilateral validation pipeline (Pydantic schema / actor-critic semantics / attribute-SoD), CapBAC tokens (Ed25519).
+  Security: OIDC/OAuth 2.0 with PKCE, SCIM (RFC 7643/7644), FIDO2/WebAuthn MFA, JWT claims, AES-GCM-256 serialization, SHA-256 cryptographic ledger, BLE (flutter_blue_plus).
+  Testing: no test runner scaffolded yet — repo has no source code. Planned: `flutter test` (widget/unit), `pytest` (services & scripts), stress/pentest scripts (qa_tests/, security_tests/).
+  Style: thesis deliverables in Spanish (UTEQ); code identifiers, comments, UI strings in English. Semantic versioning vX.Y.Z per sprint (0..12); current v0.0.0. Ground truth: documento_maestro.md + arquitectura_y_algoritmos_ia.md.
+
+testing:
+  strict_tdd: false
+  detected: 2026-08-17
+  runner:
+    present: false
+    reason: >
+      No manifests or source exist yet (no pubspec.yaml, package.json, pyproject.toml, go.mod).
+      Planned runners: `flutter test` (frontend, supports focused tests) and `pytest` (Python services/scripts, supports focused tests).
+      Re-run sdd-init after the Sprint 0 scaffold to promote strict_tdd to true.
+  layers:
+    unit:
+      available: false
+      tool: "—"
+    integration:
+      available: false
+      tool: "—"
+    e2e:
+      available: false
+      tool: "—"
+  coverage:
+    available: false
+    command: "—"
+  quality:
+    linter:
+      available: false
+      command: "—"
+    type_checker:
+      available: false
+      command: "—"
+    formatter:
+      available: false
+      command: "—"
+
+rules:
+  proposal:
+    - Map every input spec to its thesis deliverable section (documento_maestro.md / arquitectura_y_algoritmos_ia.md).
+    - State security implications (SoD, IAM, ledger integrity) when the change touches auth, roles, firmware injection, or audit logs.
+    - Include rollback plan for risky changes.
+  specs:
+    - Use Given/When/Then for scenarios.
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY).
+    - Write user stories with industrial context (rol, activo, accion) per documento_maestro.md.
+  design:
+    - Include Mermaid diagrams for complex flows (lifecycle: input spec -> history -> diagram -> prompt -> validation).
+    - Document architecture decisions with rationale.
+  tasks:
+    - Group by phase, use hierarchical numbering.
+    - Keep tasks completable in one session.
+    - Follow per-sprint semantic commits: `feat(sprint-N): ...` / `test(sprint-N): ...` with version tags vX.Y.Z.
+  apply:
+    - Follow existing code patterns.
+    - Docs stay in Spanish; code identifiers, comments, and UI strings in English.
+    tdd: false
+    test_command: ""
+  verify:
+    test_command: ""
+    build_command: ""
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas.

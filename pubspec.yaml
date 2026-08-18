@@ -1,0 +1,17 @@
+name: edge_ai_governance_iam_sod
+description: Thesis monorepo — edge AI governance + IAM with separation of duties (Flutter frontend).
+publish_to: none
+version: 0.0.0
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true

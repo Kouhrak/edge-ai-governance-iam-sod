@@ -1,0 +1,69 @@
+# Docker Compose for Testing - Edge AI Governance IAM SoD
+
+version: '3.8'
+
+services:
+  # PostgreSQL Test Database
+  db_test:
+    image: postgres:16-alpine
+    container_name: edge_ai_test_db
+    environment:
+      POSTGRES_DB: edge_ai_test
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_PORT: 5432
+    ports:
+      - "5433:5432"  # Different port to avoid conflicts
+    volumes:
+      - test_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_user -d edge_ai_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - test_network
+
+  # Redis for caching tests (optional)
+  redis_test:
+    image: redis:7-alpine
+    container_name: edge_ai_test_redis
+    ports:
+      - "6380:6379"  # Different port
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - test_network
+
+  # Test runner service
+  test_runner:
+    image: python:3.11-slim
+    container_name: edge_ai_test_runner
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      - DATABASE_URL=postgresql://test_user:test_password@db_test:5432/edge_ai_test
+      - REDIS_URL=redis://redis_test:6379/0
+      - ENVIRONMENT=test
+    depends_on:
+      db_test:
+        condition: service_healthy
+      redis_test:
+        condition: service_healthy
+    command: >
+      sh -c "pip install -r requirements-test.txt &&
+             pytest tests/ -v --cov=src --cov-report=html:coverage/html"
+    networks:
+      - test_network
+
+volumes:
+  test_data:
+
+networks:
+  test_network:
+    driver: bridge

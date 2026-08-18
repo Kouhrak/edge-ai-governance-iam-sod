@@ -1,0 +1,15 @@
+﻿.env
+.env.example
+.gitignore
+arquitectura_y_algoritmos_ia.md
+docker-compose.test.yml
+docker-compose.yml
+documento_maestro.md
+init-replication.sh
+opencode.json
+pg_hba-primary.conf
+pubspec.yaml
+pytest.ini
+README.md
+requirements-test.txt
+start-primary.sh

@@ -1,0 +1,68 @@
+# Sprint 0 — PostgreSQL 16 primary/replica pair with physical streaming
+# replication. Services-only (no top-level `version:` key — obsolete in
+# Compose v5.x / V2). Secrets arrive via environment only (compose reads
+# .env, gitignored); the two passwords have NO inline defaults and fail fast.
+#
+# Bootstrap: docker compose up -d
+#            (replication user + slot are created automatically on first init via initdb scripts)
+#
+# Port collision (spec failure mode): local service on 5432? Override:
+#   $env:POSTGRES_PORT="55432"; docker compose up -d
+# No code or secret change required.
+
+services:
+  db_primary:
+    image: postgres:16-alpine
+    command:
+      - postgres
+      - -c
+      - wal_level=replica
+      - -c
+      - max_wal_senders=10
+      - -c
+      - max_replication_slots=10
+      - -c
+      - hba_file=/etc/pg_hba/pg_hba.conf
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-edge_iam}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pg_primary_data:/var/lib/postgresql/data
+      - ./pg_hba-primary.conf:/etc/pg_hba/pg_hba.conf:ro
+      - ./initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 15s
+
+  db_replica:
+    image: postgres:16-alpine
+    command: ["bash", "/init/init-replication.sh", "--replica"]
+    restart: unless-stopped
+    environment:
+      REPLICATION_USER: ${REPLICATION_USER:-repl}
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD:?set REPLICATION_PASSWORD in .env}
+      PGPASSWORD: ${REPLICATION_PASSWORD:?set REPLICATION_PASSWORD in .env}
+    ports:
+      - "${POSTGRES_REPLICA_PORT:-5433}:5432"
+    volumes:
+      - pg_replica_data:/var/lib/postgresql/data
+      - ./init-replication.sh:/init/init-replication.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 60s
+    depends_on:
+      db_primary:
+        condition: service_healthy
+
+volumes:
+  pg_primary_data:
+  pg_replica_data:
