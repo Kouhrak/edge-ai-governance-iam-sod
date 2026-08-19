@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/theme/design_tokens.dart';
 import 'core/theme/app_theme.dart';
+import 'core/platform/platform_detector.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/domain/entities/user_identity.dart';
+import 'features/auth/domain/policies/feature_access.dart';
+import 'features/auth/presentation/widgets/platform_blocked_view.dart';
 import 'features/loader/presentation/pages/checklist_page.dart';
 import 'features/ioc/presentation/pages/ioc_dashboard_page.dart';
 
@@ -45,7 +48,30 @@ class AuthWrapper extends StatelessWidget {
           );
         }
 
+        if (state is PlatformBlocked) {
+          return PlatformBlockedView(
+            username: state.user.username,
+            message: state.reason,
+            onLogout: () =>
+                context.read<AuthBloc>().add(const LogoutRequested()),
+          );
+        }
+
         if (state is Authenticated) {
+          // Defense-in-depth: re-check the gate at the route level
+          if (!FeatureAccessPolicy.isLoginAllowed(
+            state.user.rol,
+            PlatformDetector.currentPlatform,
+          )) {
+            return PlatformBlockedView(
+              username: state.user.username,
+              message: 'Acceso denegado: su rol requiere la plataforma '
+                  '${PlatformDetector.currentPlatform.name}.',
+              onLogout: () =>
+                  context.read<AuthBloc>().add(const LogoutRequested()),
+            );
+          }
+
           // Route based on user role
           if (state.user.rol == UserRole.administrador ||
               state.user.rol == UserRole.superUsuario) {

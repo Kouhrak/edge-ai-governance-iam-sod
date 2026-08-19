@@ -38,7 +38,7 @@ class AuthMockDataSource {
       'username': 'externo_auditor',
       'email': 'externo@edge-ai-governance.com',
       'role': 'externo',
-      'active': false,
+      'active': true, // D-08: policy is the single role-denial point
     },
   };
 
