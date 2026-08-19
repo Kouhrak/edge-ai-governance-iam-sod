@@ -50,12 +50,12 @@ Deps: Phase 1 → 2.1 → 2.3; 2.2 independent; 2.5 after widgets.
 
 ## Phase 3: Shared widgets — 16 components (WS3)
 
-- [ ] 3.1 [S] `lib/features/loader/domain/entities/ble_device.dart` (NEW, pure Dart) — `BleDevice{name, mac, model, family, hardware, connectionState(enum), modifiedBy, voltage, temperature, authorized, licenseExpired}`. Pulled ahead of design WS5: DeviceCard/DeviceDetailPanel depend on it.
-- [ ] 3.2 [M] atoms ×5 — `{app_button, app_text_field, status_badge, token_chip, progress_bar}.dart` per §3.6 contracts (≥48dp, loading spinner, tone badges).
-- [ ] 3.3 [M] `molecules/login_form.dart` — `LoginVariant{userPassword, token}`; controlled (no bloc import); local Form validation; inline errorMessage via StatusBadge danger; both submit callbacks.
-- [ ] 3.4 [M] molecules ×5 — `{stat_card, nav_item, checklist_card, device_card, page_header}.dart` per §3.7.
-- [ ] 3.5 [M] organisms ×5 — `{side_navigation, top_bar, data_table, action_bar, device_detail_panel}.dart` per §3.8 (nav items list, generic DataTable column/row contracts).
-- [ ] 3.6 [M] `test/core/widgets/widgets_test.dart` (NEW) — render + callbacks + ≥48dp tap targets for shared components.
+- [x] 3.1 [S] `lib/features/loader/domain/entities/ble_device.dart` (NEW, pure Dart) — `BleDevice{name, mac, model, family, hardware, connectionState(enum), modifiedBy, voltage, temperature, authorized, licenseExpired}`. Pulled ahead of design WS5: DeviceCard/DeviceDetailPanel depend on it.
+- [x] 3.2 [M] atoms ×5 — `{app_button, app_text_field, status_badge, token_chip, progress_bar}.dart` per §3.6 contracts (≥48dp, loading spinner, tone badges).
+- [x] 3.3 [M] `molecules/login_form.dart` — `LoginVariant{userPassword, token}`; controlled (no bloc import); local Form validation; inline errorMessage via StatusBadge danger; both submit callbacks.
+- [x] 3.4 [M] molecules ×5 — `{stat_card, nav_item, checklist_card, device_card, page_header}.dart` per §3.7.
+- [x] 3.5 [M] organisms ×5 — `{side_navigation, top_bar, data_table, action_bar, device_detail_panel}.dart` per §3.8 (nav items list, generic DataTable column/row contracts).
+- [x] 3.6 [M] `test/core/widgets/widgets_test.dart` (NEW) — render + callbacks + ≥48dp tap targets for shared components.
 
 Deps: 3.1→3.4/3.5; 3.2→3.3; 3.6 last.
 
