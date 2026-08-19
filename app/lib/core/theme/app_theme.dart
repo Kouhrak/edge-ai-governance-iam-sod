@@ -7,8 +7,9 @@ import 'design_tokens.dart';
 abstract final class AppTheme {
   /// Light theme: govBlue primary (AI agent), warningYellow secondary
   /// (calibration warnings), safetyRed error (SoD lockouts), safeGreen
-  /// tertiary (authorized access). Touch targets >= 48dp for industrial
-  /// tablets (tactileMinSize).
+  /// tertiary (authorized access), cream scaffold background (Penpot
+  /// surface). Touch targets >= 48dp for industrial tablets
+  /// (tactileMinSize).
   static ThemeData light() {
     final ColorScheme scheme = ColorScheme.fromSeed(
       seedColor: DesignTokens.govBlue,
@@ -20,6 +21,7 @@ abstract final class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
+      scaffoldBackgroundColor: DesignTokens.surfaceCream,
       // Padded tap targets guarantee the 48x48dp Material minimum; combined
       // with the button minimum below, every interactive atom stays >= 48dp.
       materialTapTargetSize: MaterialTapTargetSize.padded,
