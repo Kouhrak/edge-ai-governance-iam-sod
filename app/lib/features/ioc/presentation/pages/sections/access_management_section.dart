@@ -79,7 +79,6 @@ class AccessManagementSection extends StatelessWidget {
             dt.DataTableColumn(label: 'Rol'),
             dt.DataTableColumn(label: 'Estado'),
             dt.DataTableColumn(label: 'Último Login', flex: 2),
-            dt.DataTableColumn(label: 'Acciones'),
           ],
           rows: [
             for (final user in _users)
