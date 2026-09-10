@@ -143,12 +143,16 @@ class PersonalAccessesSection extends StatelessWidget {
         for (final device in _linkedDevices)
           DeviceCard(device: device, onTap: () {}),
         const SizedBox(height: DesignTokens.spaceLg),
-        const Row(
+        Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(child: _GlobalStatusCard()),
-            SizedBox(width: DesignTokens.spaceMd),
-            Expanded(child: _MasterActionsCard()),
+            const Flexible(
+              child: _GlobalStatusCard(),
+            ),
+            const SizedBox(width: DesignTokens.spaceMd),
+            const Flexible(
+              child: _MasterActionsCard(),
+            ),
           ],
         ),
       ],

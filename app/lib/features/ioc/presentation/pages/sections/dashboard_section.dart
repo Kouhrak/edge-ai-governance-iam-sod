@@ -108,12 +108,18 @@ class DashboardSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: DesignTokens.spaceLg),
-        const Row(
+        Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(flex: 3, child: _SecurityAlertsCard()),
-            SizedBox(width: DesignTokens.spaceMd),
-            Expanded(flex: 2, child: _TrafficCard()),
+            const Flexible(
+              flex: 3,
+              child: _SecurityAlertsCard(),
+            ),
+            const SizedBox(width: DesignTokens.spaceMd),
+            const Flexible(
+              flex: 2,
+              child: _TrafficCard(),
+            ),
           ],
         ),
       ],
@@ -224,7 +230,7 @@ class _TrafficCard extends StatelessWidget {
                     children: [
                       Container(
                         width: DesignTokens.spaceLg,
-                        height: height * DesignTokens.spaceSm,
+                        height: (height * 4).toDouble().clamp(20.0, 80.0),
                         decoration: BoxDecoration(
                           color: DesignTokens.govBlue,
                           borderRadius: BorderRadius.circular(

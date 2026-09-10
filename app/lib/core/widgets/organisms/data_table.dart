@@ -17,6 +17,41 @@ class DataTableRow {
   const DataTableRow({required this.cells, this.actions});
 }
 
+/// Header cell with fixed min-width to prevent collapse.
+class _DataTableHeaderCell extends StatelessWidget {
+  final String label;
+  final int flex;
+
+  const _DataTableHeaderCell({required this.label, required this.flex});
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(minWidth: 80.0 * flex),
+      child: Text(
+        label,
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+}
+
+/// Data cell with fixed min-width to prevent collapse.
+class _DataTableCell extends StatelessWidget {
+  final int flex;
+  final Widget child;
+
+  const _DataTableCell({required this.flex, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(minWidth: 80.0 * flex),
+      child: child,
+    );
+  }
+}
+
 /// Generic data table organism — bold header row with flexible columns and
 /// a scrollable body. Rows may carry trailing action widgets.
 class DataTable extends StatelessWidget {
@@ -33,65 +68,66 @@ class DataTable extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: EdgeInsets.zero,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(DesignTokens.spaceMd),
-            decoration: BoxDecoration(
-              color: Colors.grey[50],
-              border: Border(
-                bottom: BorderSide(color: Colors.grey[300]!),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(DesignTokens.spaceMd),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                border: Border(
+                  bottom: BorderSide(color: Colors.grey[300]!),
+                ),
+              ),
+              child: Row(
+                children: [
+                  for (final column in columns)
+                    _DataTableHeaderCell(
+                      label: column.label,
+                      flex: column.flex,
+                    ),
+                  if (rows.any((row) => row.actions != null))
+                    SizedBox(
+                      width: DesignTokens.spaceXl * 2,
+                      child: const Text(
+                        'Acciones',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                ],
               ),
             ),
-            child: Row(
-              children: [
-                for (final column in columns)
-                  Expanded(
-                    flex: column.flex,
-                    child: Text(
-                      column.label,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
+            for (final row in rows)
+              Container(
+                padding: const EdgeInsets.all(DesignTokens.spaceMd),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: Colors.grey[200]!),
                   ),
-                if (rows.any((row) => row.actions != null))
-                  const SizedBox(width: DesignTokens.spaceXl),
-              ],
-            ),
-          ),
-          Flexible(
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: rows.length,
-              itemBuilder: (context, index) {
-                final row = rows[index];
-                return Container(
-                  padding: const EdgeInsets.all(DesignTokens.spaceMd),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(color: Colors.grey[200]!),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      for (var c = 0; c < row.cells.length; c++)
-                        Expanded(
-                          flex: columns[c].flex,
-                          child: row.cells[c],
-                        ),
-                      if (row.actions != null) ...[
-                        const SizedBox(width: DesignTokens.spaceSm),
-                        Row(
+                ),
+                child: Row(
+                  children: [
+                    for (var c = 0; c < row.cells.length; c++)
+                      _DataTableCell(
+                        flex: columns[c].flex,
+                        child: row.cells[c],
+                      ),
+                    if (row.actions != null) ...[
+                      SizedBox(
+                        width: DesignTokens.spaceXl * 2,
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: row.actions!,
                         ),
-                      ],
+                      ),
                     ],
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
