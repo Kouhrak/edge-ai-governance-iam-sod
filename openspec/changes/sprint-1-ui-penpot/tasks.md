@@ -61,10 +61,10 @@ Deps: 3.1→3.4/3.5; 3.2→3.3; 3.6 last.
 
 ## Phase 4: IOC web (WS4)
 
-- [ ] 4.1 [S] `lib/features/ioc/presentation/pages/ioc_login_page.dart` (NEW) — LoginForm(userPassword) + BlocConsumer (AuthError→errorMessage).
-- [ ] 4.2 [M] `lib/features/ioc/presentation/pages/ioc_dashboard_page.dart` — refactor to shell: SideNavigation (Dashboard/Gestión de Accesos/Personal y Accesos/Gestion de eventos), TopBar, IndexedStack, logout→`LogoutRequested` (D-10, D-13). Keep `currentUser:` ctor (main.dart still routes here until 5.5).
-- [ ] 4.3 [M] `sections/dashboard_section.dart` (NEW) — StatCard×4 métricas, DataTable registros autorizados, alertas bloqueados (StatusBadge danger), static 7-bar traffic placeholder.
-- [ ] 4.4 [M] `sections/{access_management, personal_accesses, events}_section.dart` (NEW) — users DataTable; usuario institucional + equipos (DeviceCard) + Estatus Global + Acciones Maestras (Vincular → SnackBar placeholder); "En desarrollo" card.
+- [x] 4.1 [S] `lib/features/ioc/presentation/pages/ioc_login_page.dart` (NEW) — LoginForm(userPassword) + BlocConsumer (AuthError→errorMessage).
+- [x] 4.2 [M] `lib/features/ioc/presentation/pages/ioc_dashboard_page.dart` — refactor to shell: SideNavigation (Dashboard/Gestión de Accesos/Personal y Accesos/Gestion de eventos), TopBar, IndexedStack, logout→`LogoutRequested` (D-10, D-13). Keep `currentUser:` ctor (main.dart still routes here until 5.5).
+- [x] 4.3 [M] `sections/dashboard_section.dart` (NEW) — StatCard×4 métricas, DataTable registros autorizados, alertas bloqueados (StatusBadge danger), static 7-bar traffic placeholder.
+- [x] 4.4 [M] `sections/{access_management, personal_accesses, events}_section.dart` (NEW) — users DataTable; usuario institucional + equipos (DeviceCard) + Estatus Global + Acciones Maestras (Vincular → SnackBar placeholder); "En desarrollo" card.
 
 Deps: 3.3→4.1; 3.4/3.5→4.2–4.4.
 
